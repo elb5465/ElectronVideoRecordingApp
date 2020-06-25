@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu} = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -6,6 +6,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
+//LOAD WINDOW: settings for what window will look like after startup
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -15,11 +16,9 @@ const createWindow = () => {
       nodeIntegration: true,
     }
   });
-
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
-
-  // Open the DevTools.
+  // Open the DevTools. TK - Comment out below to not have developer tools visible on start
   mainWindow.webContents.openDevTools();
 };
 
@@ -27,6 +26,25 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
+
+//------ Overwrite the default Menu - Disable this chunk to return to default --------
+const mainMenuTemplate = [
+  {label: 'File',
+    submenu: [
+      { label: 'Add Firmware Path' },
+      { label: 'Add Serial Port Path'},
+      { label: 'Quit', 
+        accelerator: (process.platform == 'darwin') ? 'Command+Q' : 'Ctrl+Q',
+        click(){ app.quit(); }
+      }
+    ]
+  }
+  // ,{label: 'Settings'}
+];
+const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+Menu.setApplicationMenu(mainMenu);
+
+//------------------------------- END MENU OVERRIDE ----------------------------------
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
